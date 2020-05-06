@@ -46,6 +46,8 @@ struct neighbour {
     struct timeval rtt_time;
     struct interface *ifp;
     struct buffered buf;
+    char *ifname;
+    char is_static;
 };
 
 extern struct neighbour *neighs;
@@ -65,3 +67,5 @@ unsigned neighbour_rxcost(struct neighbour *neigh);
 unsigned neighbour_rttcost(struct neighbour *neigh);
 unsigned neighbour_cost(struct neighbour *neigh);
 int valid_rtt(struct neighbour *neigh);
+void add_ifp_to_neighbour(char *ifname, struct neighbour *neigh);
+struct neighbour *create_static_neighbour(const unsigned char *address, char *ifname);

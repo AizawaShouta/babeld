@@ -41,6 +41,7 @@ THE SOFTWARE.
 #include "kernel.h"
 #include "configuration.h"
 #include "rule.h"
+#include "neighbour.h"
 
 static struct filter *input_filters = NULL;
 static struct filter *output_filters = NULL;
@@ -583,6 +584,13 @@ parse_anonymous_ifconf(int c, gnc_t gnc, void *closure,
             if(c < -1)
                 goto error;
             if_conf->multicast_discovery_off = v;
+        } else if(strcmp(token, "static-neighbour") == 0) {
+            unsigned char *neigh = NULL;
+            c = getip(c, &neigh, NULL, gnc, closure);            
+            if(c < -1)
+                goto error;
+            create_static_neighbour(neigh,if_conf->ifname);
+            free(neigh);
         } else if(strcmp(token, "link-quality") == 0) {
             int v;
             c = getbool(c, &v, gnc, closure);

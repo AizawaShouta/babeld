@@ -368,3 +368,68 @@ valid_rtt(struct neighbour *neigh)
 {
     return (timeval_minus_msec(&now, &neigh->rtt_time) < 180000) ? 1 : 0;
 }
+
+struct neighbour *
+create_static_neighbour(const unsigned char *address, char *ifname)
+{
+    struct neighbour *neigh;
+    const struct timeval zero = {0, 0};
+
+    debugf("Creating static neighbour %s on %s.\n",
+           format_address(address), ifname);
+
+    neigh = calloc(1, sizeof(struct neighbour));
+    if(neigh == NULL) {
+        perror("malloc(neighbour)");
+        return NULL;
+    }
+
+    neigh->hello.seqno = neigh->uhello.seqno = -1;
+    memcpy(neigh->address, address, 16);
+    neigh->txcost = INFINITY;
+    neigh->ihu_time = now;
+    neigh->hello.time = neigh->uhello.time = zero;
+    neigh->hello_rtt_receive_time = zero;
+    neigh->rtt_time = zero;
+    neigh->ifname = ifname;
+    neigh->ifp=NULL;
+    neigh->next = neighs;
+    neigh->is_static = 1;
+    neighs = neigh;
+    local_notify_neighbour(neigh, LOCAL_ADD);
+    return neigh;
+}
+
+/*add the interface and buf to a neighbour*/
+void
+add_ifp_to_neighbour(char *ifname, struct neighbour *neigh)
+{
+    struct interface *ifp;
+    unsigned char *buf;
+
+    FOR_ALL_INTERFACES(ifp) {
+        if(strcmp(ifp->name, ifname) == 0) {
+            if(neigh){
+                buf = malloc(ifp->buf.size);
+                if(buf == NULL) {
+                    perror("malloc(neighbour->buf)");
+                    return;
+                }
+                neigh->ifp=ifp;
+                neigh->buf.len=0;
+                neigh->buf.buf = buf;
+                neigh->buf.size = ifp->buf.size;
+                neigh->buf.hello = -1;
+                neigh->buf.flush_interval = ifp->buf.flush_interval;
+                neigh->buf.sin6.sin6_family = AF_INET6;
+                memcpy(&neigh->buf.sin6.sin6_addr, neigh->address, 16);
+                neigh->buf.sin6.sin6_port = htons(protocol_port);
+                neigh->buf.sin6.sin6_scope_id = ifp->ifindex;
+            }
+            return;
+        }
+    }
+
+    fprintf(stderr, "Warning: static neighbour defined with non-existing interface %s.\n", ifname);
+    flush_neighbour(neigh);
+}
