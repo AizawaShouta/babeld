@@ -1138,8 +1138,17 @@ send_unicast_hello(struct neighbour *neigh, unsigned interval, int force)
 void
 send_hello(struct interface *ifp)
 {
-    send_multicast_hello(ifp, (ifp->hello_interval + 9) / 10, 1);
-    /* Send full IHU every 3 hellos, and marginal IHU each time */
+    if((ifp->flags & IF_MULTICAST_DISC_OFF) != 0) {
+        struct neighbour *neigh;
+        FOR_ALL_NEIGHBOURS(neigh) {
+            if(neigh->ifp == ifp) {
+                send_unicast_hello(neigh, (ifp->hello_interval + 9) / 10, 1);
+            }
+        }
+    }else{
+        send_multicast_hello(ifp, (ifp->hello_interval + 9) / 10, 1);
+        /* Send full IHU every 3 hellos, and marginal IHU each time */
+    }
     if(ifp->hello_seqno % 3 == 0)
         send_ihu(NULL, ifp);
     else

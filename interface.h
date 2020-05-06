@@ -46,6 +46,7 @@ struct interface_conf {
     char lq;
     char faraway;
     char unicast;
+    char multicast_discovery_off;
     int channel;
     int enable_timestamps;
     int rfc6126;
@@ -72,6 +73,8 @@ struct interface_conf {
 #define IF_FARAWAY (1 << 4)
 /* Send most TLVs over unicast. */
 #define IF_UNICAST (1 << 5)
+/* Stop multicast discovery. */
+#define IF_MULTICAST_DISC_OFF (1 << 5)
 /* Send timestamps in Hello and IHU. */
 #define IF_TIMESTAMPS (1 << 6)
 /* Remain compatible with RFC 6126. */
