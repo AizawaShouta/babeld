@@ -451,13 +451,6 @@ main(int argc, char **argv)
         goto fail;
     }
 
-    struct neighbour *neigh;
-    FOR_ALL_NEIGHBOURS(neigh){
-        if(neigh->is_static == 1){
-            add_ifp_to_neighbour(neigh->ifname, neigh);
-        }
-    }
-
     if(!have_id && !random_id) {
         /* We use all available interfaces here, since this increases the
            chances of getting a stable router-id in case the set of Babel
@@ -551,6 +544,13 @@ main(int argc, char **argv)
         goto fail;
 
     check_interfaces();
+
+     struct neighbour *neigh;
+    FOR_ALL_NEIGHBOURS(neigh){
+        if(neigh->is_static == 1){
+            add_ifp_to_neighbour(neigh->ifname, neigh);
+        }
+    }
 
     rc = check_xroutes(0);
     if(rc < 0)
