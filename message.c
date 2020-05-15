@@ -1138,7 +1138,7 @@ send_unicast_hello(struct neighbour *neigh, unsigned interval, int force)
 void
 send_hello(struct interface *ifp)
 {
-    if((ifp->flags && IF_MULTICAST_DISC_OFF) != 0) {
+    if/*((ifp->flags && IF_MULTICAST_DISC_OFF) != 0)*/(0) {
         struct neighbour *neigh;
         FOR_ALL_NEIGHBOURS(neigh) {
             if(neigh->ifp == ifp) {
@@ -1150,7 +1150,7 @@ send_hello(struct interface *ifp)
             flushbuf(&ifp->buf, ifp);
         }
         ifp->hello_seqno = seqno_plus(ifp->hello_seqno, 1);
-        if(interval > 0) set_timeout(&ifp->hello_timeout, ifp->hello_interval);
+        if(ifp->hello_interval > 0) set_timeout(&ifp->hello_timeout, ifp->hello_interval);
     
     }else{
         send_multicast_hello(ifp, (ifp->hello_interval + 9) / 10, 1);
