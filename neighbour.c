@@ -233,11 +233,11 @@ check_neighbours()
         rc = update_neighbour(neigh, &neigh->uhello, 1, -1, 0);
         changed = changed || rc;
 
-        if ((neigh->is_static == 0) && (neigh->hello.reach == 0 ||\
-        neigh->hello.time.tv_sec > now.tv_sec || /* clock stepped */\
-        timeval_minus_msec(&now, &neigh->hello.time) > 300000)) && (neigh->uhello.reach == 0 ||\
-        neigh->uhello.time.tv_sec > now.tv_sec || /* clock stepped */\
-        timeval_minus_msec(&now, &neigh->uhello.time) > 300000)) {
+        if ((neigh->is_static == 0) && (neigh->hello.reach == 0 ||\
+        neigh->hello.time.tv_sec > now.tv_sec ||\
+        timeval_minus_msec(&now, &neigh->hello.time) > 300000)\
+        && (neigh->uhello.reach == 0 || neigh->uhello.time.tv_sec > now.tv_sec ||\
+        timeval_minus_msec(&now, &neigh->uhello.time) > 300000)){
             struct neighbour *old = neigh;
             neigh = neigh->next;
             flush_neighbour(old);
