@@ -1138,7 +1138,7 @@ send_unicast_hello(struct neighbour *neigh, unsigned interval, int force)
 void
 send_hello(struct interface *ifp)
 {
-    if/*((ifp->flags && IF_MULTICAST_DISC_OFF) != 0)*/(0) {
+    if ((ifp->flags & IF_MULTICAST_DISC_OFF) != 0) {
         struct neighbour *neigh;
         FOR_ALL_NEIGHBOURS(neigh) {
             if(neigh->ifp == ifp) {

@@ -821,7 +821,16 @@ main(int argc, char **argv)
         send_wildcard_retraction(ifp);
         /* Make sure that we expire quickly from our neighbours'
            association caches. */
-        send_multicast_hello(ifp, 10, 1);
+        if ((ifp->flags & IF_MULTICAST_DISC_OFF) != 0) {
+            struct neighbour *neigh;
+            FOR_ALL_NEIGHBOURS(neigh) {
+                if(neigh->ifp == ifp) {
+                    send_unicast_hello(neigh, 10, 1);
+                }
+            }
+        }else{
+            send_multicast_hello(ifp, 10, 1);
+        }
         flushbuf(&ifp->buf, ifp);
         usleep(roughly(1000));
         gettime(&now);
@@ -831,7 +840,16 @@ main(int argc, char **argv)
             continue;
         /* Make sure they got it. */
         send_wildcard_retraction(ifp);
-        send_multicast_hello(ifp, 1, 1);
+        if ((ifp->flags & IF_MULTICAST_DISC_OFF) != 0) {
+            struct neighbour *neigh;
+            FOR_ALL_NEIGHBOURS(neigh) {
+                if(neigh->ifp == ifp) {
+                    send_unicast_hello(neigh, 1, 1);
+                }
+            }
+        }else{
+            send_multicast_hello(ifp, 1, 1);
+        }
         flushbuf(&ifp->buf, ifp);
         usleep(roughly(10000));
         gettime(&now);
